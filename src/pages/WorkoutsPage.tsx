@@ -538,6 +538,18 @@ export default function WorkoutsPage() {
   // F329 — Streak calendar state (7-day mini calendar)
   const [streakDays, setStreakDays] = useState<Set<string>>(new Set());
   const [showStreakCalendar, setShowStreakCalendar] = useState(false);
+  // F329 — Memoized last-7-days dates (avoid impure Date.now() in render)
+  const last7Days = useMemo(() => {
+    const now = Date.now(); // eslint-disable-line react-hooks/purity
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(now - (6 - i) * 86400000);
+      return {
+        dateStr: d.toISOString().split('T')[0],
+        dayLabel: d.toLocaleDateString('es-ES', { weekday: 'short' }).slice(0, 2),
+        dayNum: d.getDate(),
+      };
+    });
+  }, []);
   // F334 — Quick-start workout name chips (recent workout names for quick start)
   const quickStartNames = useMemo(() => {
     return [...new Set(
@@ -2293,11 +2305,7 @@ export default function WorkoutsPage() {
             <div className="w-full mt-2 p-3 rounded-xl" style={{ backgroundColor: 'var(--color-surface)' }}>
               <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-text-2)' }}>Últimos 7 días</p>
               <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: 7 }, (_, i) => {
-                  const d = new Date(Date.now() - (6 - i) * 86400000);
-                  const dateStr = d.toISOString().split('T')[0];
-                  const dayLabel = d.toLocaleDateString('es-ES', { weekday: 'short' }).slice(0, 2);
-                  const dayNum = d.getDate();
+                {last7Days.map(({ dateStr, dayLabel, dayNum }) => {
                   const hasWorkout = streakDays.has(dateStr);
                   return (
                     <div key={dateStr} className="flex flex-col items-center">
