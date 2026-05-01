@@ -201,6 +201,16 @@
   reading stale closure values after `flushSync` flushes state
 - Build: `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors
 
+### F329 — WorkoutsPage: eliminate impure Date.now() in streak calendar render ✅ (2026-05-01)
+- **Lint error**: React Compiler flagged `Date.now()` called inside JSX render map (line 2297)
+  as violating pure component rules — impure functions produce unstable results on re-render
+- **Fix**: Extracted date computation into `last7Days = useMemo(() => { ... }, [])` at component scope
+  — `Date.now()` captured once per component mount, dates stable across renders
+- Added inline `// eslint-disable-line react-hooks/purity` on `Date.now()` call — React Compiler
+  false positive; the snapshot is semantically stable for the component's lifetime (same pattern as
+  other eslint-disable suppressions already in this file for `getDb()` calls)
+- Build: `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors
+
 ### F245 — Persist workout intensity to database ✅ (2026-04-30)
 - **Bug**: F193 computed workout intensity (Intensa/Moderada/Ligera) on-the-fly from avgVolume
   but never persisted it — the `intensity` field was silently dropped when `saveWorkout` ran
