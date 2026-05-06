@@ -1282,3 +1282,12 @@
 - "No se encontraron ejercicios" empty state respects the active filter
 - Build: `tsc -b` + `vite build` pass with 0 errors, eslint clean
 
+### F335 — SettingsPage: race condition in toggleDay ✅ (2026-05-06)
+**Root cause: stale closure over `reminderDays` array.**
+
+- `toggleDay` read `reminderDays` (a captured value) and called `setReminderDays(...)` synchronously
+- If the user clicked two day-buttons rapidly (or React re-rendered between the read and write), the second click would read the pre-first-click state and overwrite the first mutation
+- **Fix:** Replaced direct read of `reminderDays` with Zustand's `useSettingsStore.setState(prev => ...)` functional updater pattern — always operates on the current committed state, never a stale closure
+- Also removed now-unused `setReminderDays` from destructuring (no other usage in the file)
+- Build: `tsc -b` + `vite build` pass with 0 errors
+

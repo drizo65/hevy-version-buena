@@ -15,7 +15,7 @@ export default function SettingsPage() {
     muscleAlertDays, targetDurationMinutes,
     setUnit, setMeasurementUnit, setDefaultRest, setDefaultSets, setDefaultReps,
     setAutoStartRest, setVibrationEnabled, setSoundEnabled,
-    setReminderEnabled, setReminderTime, setReminderDays,
+    setReminderEnabled, setReminderTime,
     setMuscleAlertDays, setTargetDurationMinutes,
   } = useSettingsStore();
 
@@ -73,11 +73,11 @@ export default function SettingsPage() {
 
   const dayLabels = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   const toggleDay = (day: number) => {
-    if (reminderDays.includes(day)) {
-      setReminderDays(reminderDays.filter(d => d !== day));
-    } else {
-      setReminderDays([...reminderDays, day].sort());
-    }
+    useSettingsStore.setState(prev => ({
+      reminderDays: prev.reminderDays.includes(day)
+        ? prev.reminderDays.filter(d => d !== day)
+        : [...prev.reminderDays, day].sort(),
+    }));
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
