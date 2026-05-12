@@ -1291,3 +1291,16 @@
 - Also removed now-unused `setReminderDays` from destructuring (no other usage in the file)
 - Build: `tsc -b` + `vite build` pass with 0 errors
 
+
+
+### F336 — ExerciseDetailPage: eliminate duplicated ratio computation in training interval chip ✅ (2026-05-12)
+**Issue found during code review — the F241 training interval chip computed `ratio` 4 times via IIFEs.**
+
+The `style` prop had 2 IIFEs and the `children` had a 3rd IIFE — all computing the same `ratio = avgDays / recommendedDays`. Each IIFE duplicated the same conditional logic.
+
+**Fix:** Replaced all 3 IIFEs with a single IIFE that computes `ratio`, `intervalColor`, and `intervalLabel` once, then references the pre-computed values in JSX. Also removed a duplicate `title` attribute on the `<span>` element.
+
+**Before:** 4 separate `ratio` computations via `(() => { const ratio = ...; return ...; })()`  
+**After:** 1 computation, 3 references to pre-computed `intervalColor` / `intervalLabel`
+
+**Build:** `tsc -b` — 0 errors, `npm run lint` — 0 errors

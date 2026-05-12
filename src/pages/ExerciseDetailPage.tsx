@@ -374,33 +374,25 @@ export default function ExerciseDetailPage() {
             </span>
           )}
           {/* F241 — Training interval recommendation chip */}
-          {trainingInterval && trainingInterval.avgDays > 0 && (
-            <span
-              className="text-[10px] px-1.5 py-0.5 rounded font-semibold flex-shrink-0"
-              style={{
-                backgroundColor: `${(() => {
-                  const ratio = trainingInterval.avgDays / trainingInterval.recommendedDays;
-                  if (ratio <= 1) return '#10b981'; // green — training on schedule
-                  if (ratio <= 1.4) return '#f59e0b'; // amber — approaching overdue
-                  return '#ef4444'; // red — overdue
-                })()}20`,
-                color: (() => {
-                  const ratio = trainingInterval.avgDays / trainingInterval.recommendedDays;
-                  if (ratio <= 1) return '#10b981';
-                  if (ratio <= 1.4) return '#f59e0b';
-                  return '#ef4444';
-                })(),
-              }}
-              title={`Media: cada ${trainingInterval.avgDays}d · recomendado: ${trainingInterval.recommendedDays}d · basado en ${trainingInterval.sessions} sesiones`}
-            >
-              {(() => {
-                const ratio = trainingInterval.avgDays / trainingInterval.recommendedDays;
-                if (ratio <= 1) return `↻ ${trainingInterval.avgDays}d`;
-                if (ratio <= 1.4) return `⏳ ${trainingInterval.avgDays}d`;
-                return `⏰ ${trainingInterval.avgDays}d`;
-              })()}
-            </span>
-          )}
+          {trainingInterval && trainingInterval.avgDays > 0 && (() => {
+            const ratio = trainingInterval.avgDays / trainingInterval.recommendedDays;
+            const intervalColor = ratio <= 1 ? '#10b981' : ratio <= 1.4 ? '#f59e0b' : '#ef4444';
+            const intervalLabel = ratio <= 1 ? `↻ ${trainingInterval.avgDays}d`
+              : ratio <= 1.4 ? `⏳ ${trainingInterval.avgDays}d`
+              : `⏰ ${trainingInterval.avgDays}d`;
+            return (
+              <span
+                className="text-[10px] px-1.5 py-0.5 rounded font-semibold flex-shrink-0"
+                title={`Media: cada ${trainingInterval.avgDays}d · recomendado: ${trainingInterval.recommendedDays}d · basado en ${trainingInterval.sessions} sesiones`}
+                style={{
+                  backgroundColor: `${intervalColor}20`,
+                  color: intervalColor,
+                }}
+              >
+                {intervalLabel}
+              </span>
+            );
+          })()}
           {/* F230 — Workout session timer chip */}
           {activeWorkout && elapsedSeconds > 0 && (
             <span
