@@ -411,7 +411,7 @@ export default function ExerciseDetailPage() {
               style={{ backgroundColor: 'var(--color-surface-2)', color: 'var(--color-text-2)' }}
               title={`Última sesión: ${lastSessionPreview.totalSets} series · ${lastSessionPreview.totalVolume.toLocaleString()} kg totales`}
             >
-              Última vez: {lastSessionPreview.topSet.weight}{unit}×{lastSessionPreview.topSet.reps} · {lastSessionPreview.totalSets}s
+              Última vez: {formatWeight(lastSessionPreview.topSet.weight, unit)} × {lastSessionPreview.topSet.reps} · {lastSessionPreview.totalSets}s
             </span>
           )}
         </div>
