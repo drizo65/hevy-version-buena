@@ -1304,3 +1304,10 @@ The `style` prop had 2 IIFEs and the `children` had a 3rd IIFE — all computing
 **After:** 1 computation, 3 references to pre-computed `intervalColor` / `intervalLabel`
 
 **Build:** `tsc -b` — 0 errors, `npm run lint` — 0 errors
+### F337 — ExerciseDetailPage: use formatWeight() in F282 last session preview chip ✅ (2026-05-13)
+- **Bug found during review:** F282 chip displayed raw weight number (`{lastSessionPreview.topSet.weight}{unit}`) without using `formatWeight()`
+- `formatWeight()` handles: (1) unit suffix (`kg`/`lb`), (2) decimal formatting for `kg` (`.toFixed(1)`), (3) proper `Math.round` for `lb`
+- All other weight displays in the app use `formatWeight()` — this was the only inconsistency
+- **Fix:** Changed `{lastSessionPreview.topSet.weight}{unit}` → `{formatWeight(lastSessionPreview.topSet.weight, unit)}`
+- Also normalized spacing: `×` → ` × ` (with spaces) for consistency with other chips
+- Build: `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors
