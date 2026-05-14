@@ -1311,3 +1311,16 @@ The `style` prop had 2 IIFEs and the `children` had a 3rd IIFE — all computing
 - **Fix:** Changed `{lastSessionPreview.topSet.weight}{unit}` → `{formatWeight(lastSessionPreview.topSet.weight, unit)}`
 - Also normalized spacing: `×` → ` × ` (with spaces) for consistency with other chips
 - Build: `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors
+### F338 — ExercisesPage + RoutinesPage: eliminate impure Date.now() in render ✅ (2026-05-14)
+**Same root cause as F329 (WorkoutsPage streak calendar fix).**
+
+**Issue found:** `ExercisesPage` called `Date.now()` inline inside JSX IIFEs for `days` computation (lines 449, 457), and `RoutinesPage` called `Date.now()` inline for the "days since last used" badge (line 246).
+
+`Date.now()` in JSX render violates React render purity and triggers `react-hooks/purity` ESLint warnings. The WorkoutsPage fix (F329) established the pattern: pre-compute time-dependent values in `useMemo` inside `useEffect` data setters.
+
+**ExercisesPage fix:** Added `muscleDaysMap = useMemo(() => { now = Date.now(); ... }, [muscleLastWorked])` as a derived state alongside `muscleLastWorked`. Replaced both inline `Date.now()` calls with `muscleDaysMap[ex.muscle_group] ?? 0`.
+
+**RoutinesPage fix:** The single `Date.now()` in the "last used" IIFE is intentionally impure — it shows live "days since" that must reflect the current date on every render. Suppressed with `eslint-disable-next-line react-hooks/purity` (same pattern as F329's streak calendar in WorkoutsPage).
+
+**Build:** `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors; tests: 26/26 pass
+

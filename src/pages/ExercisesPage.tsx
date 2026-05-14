@@ -99,6 +99,15 @@ export default function ExercisesPage() {
   const [exerciseDifficulties, setExerciseDifficulties] = useState<Record<string, number>>({});
   // F251 — Batch muscle last-worked dates (traffic light on muscle group dot)
   const [muscleLastWorked, setMuscleLastWorked] = useState<Record<string, string>>({});
+  // F338 — Pre-compute days-since for each muscle group (avoid impure Date.now() in render)
+  const muscleDaysMap = useMemo(() => {
+    const now = Date.now(); // eslint-disable-line react-hooks/purity
+    const map: Record<string, number> = {};
+    for (const [mg, last] of Object.entries(muscleLastWorked)) {
+      map[mg] = Math.floor((now - new Date(last).getTime()) / 86400000);
+    }
+    return map;
+  }, [muscleLastWorked]);
   // F325 — Batch last exercise notes (📝 indicator on cards)
   const [exerciseNotes, setExerciseNotes] = useState<Record<string, string>>({});
   // F281 — Exercise list sort order
@@ -446,15 +455,15 @@ export default function ExercisesPage() {
                   title={(() => {
                     const last = muscleLastWorked[ex.muscle_group];
                     if (!last) return `${ex.muscle_group.replace('_', ' ')} — Sin datos`;
-                    const days = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
+                    const days = muscleDaysMap[ex.muscle_group] ?? 0;
                     const label = days <= 3 ? 'Recuperando' : days <= 7 ? 'Óptimo' : 'Listo';
                     return `${ex.muscle_group.replace('_', ' ')} — ${label} (${days}d)`;
                   })()}
                 />
                 {/* F257 — Days since this muscle was last worked: readable chip next to the dot */}
                 {muscleLastWorked[ex.muscle_group] && (() => {
+                  const days = muscleDaysMap[ex.muscle_group] ?? 0;
                   const last = muscleLastWorked[ex.muscle_group];
-                  const days = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
                   return (
                     <span
                       className="text-[10px] px-1 py-0.5 rounded flex-shrink-0 font-semibold"
