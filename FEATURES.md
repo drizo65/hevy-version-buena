@@ -1348,5 +1348,11 @@ All other weight displays in the app use `formatWeight(w, unit)` which returns `
 - `bestSetLabel` template literal: `${weight}${unit}` → `${weight} ${unit}`
 - `topSet` mini-chip: `100kg×8` → `100 kg × 8`
 
+**CompareWorkoutsPage fixes (2×):**
+- Set display: `{s.weight}kg` → `{s.weight} kg`
+
+**ExerciseDetailPage fix:**
+- bestSet trophy title: `{bestSet.weight}kg` → `{bestSet.weight} kg`
+
 **Build:** `tsc -b` + `vite build` pass with 0 errors
 
