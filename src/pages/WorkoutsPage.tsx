@@ -1790,7 +1790,7 @@ export default function WorkoutsPage() {
                     <span className="text-xs font-medium" style={{ color: 'var(--color-text)' }}>Mejor serie</span>
                   </div>
                   <span className="text-sm font-bold" style={{ color: '#3b82f6' }}>
-                    {summaryModal.bestSet.weight}{unit === 'lbs' ? 'lb' : 'kg'} × {summaryModal.bestSet.reps}
+                    {summaryModal.bestSet.weight} {unit === 'lbs' ? 'lb' : 'kg'} × {summaryModal.bestSet.reps}
                   </span>
                 </div>
               )}
@@ -2489,7 +2489,7 @@ export default function WorkoutsPage() {
                   return vol > bestVol ? s : best;
                 }, null);
                 const bestSetLabel = bestSet && bestSet.weight > 0
-                  ? `${bestSet.weight}${unit === 'lbs' ? 'lb' : 'kg'} × ${bestSet.reps}`
+                  ? `${bestSet.weight} ${unit === 'lbs' ? 'lb' : 'kg'} × ${bestSet.reps}`
                   : null;
                 // F288 — Top exercise by volume: which exercise contributed most volume to this workout
                 const exVolMap = new Map<string, number>();
@@ -2700,7 +2700,7 @@ export default function WorkoutsPage() {
                                 </span>
                                 {topSet && topSet.weight > 0 && (
                                   <span className="flex-shrink-0 text-[9px] px-1 py-0.5 rounded" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-2)' }}>
-                                    {topSet.weight}{unit === 'lbs' ? 'lb' : 'kg'}×{topSet.reps}
+                                    {topSet.weight} {unit === 'lbs' ? 'lb' : 'kg'} × {topSet.reps}
                                   </span>
                                 )}
                               </div>
