@@ -1363,7 +1363,7 @@ export default function WorkoutDetailPage() {
                               style={{ backgroundColor: 'var(--color-surface-2)', color: 'var(--color-text-2)' }}
                               title={`Último: ${lastWeights[ex.id].weight}kg × ${lastWeights[ex.id].reps} reps`}
                             >
-                              {lastWeights[ex.id].weight}kg ×{lastWeights[ex.id].reps}
+                              {lastWeights[ex.id].weight} kg × {lastWeights[ex.id].reps}
                             </span>
                           )}
                           {alreadyInWorkout ? (
@@ -1668,7 +1668,7 @@ export default function WorkoutDetailPage() {
                                         key={si}
                                         className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                                         style={{ backgroundColor: dotColor }}
-                                        title={`Serie ${si + 1}: ${s.weight > 0 || s.reps > 0 ? `${s.weight}${unit} × ${s.reps}` : 'vacía'}`}
+                                        title={`Serie ${si + 1}: ${s.weight > 0 || s.reps > 0 ? `${s.weight} ${unit} × ${s.reps}` : 'vacía'}`}
                                       />
                                     );
                                   })}
@@ -1706,7 +1706,7 @@ export default function WorkoutDetailPage() {
                                   <span
                                     className="text-[10px] px-1.5 py-0.5 rounded font-medium"
                                     style={{ backgroundColor: 'var(--color-surface-2)', color: diffColor }}
-                                    title={`Última vez: ${prevBest.weight}${unit} × ${prevBest.reps} — ${format(new Date(prev.workoutDate), "d 'de' MMM", { locale: es })}`}
+                                    title={`Última vez: ${prevBest.weight} ${unit} × ${prevBest.reps} — ${format(new Date(prev.workoutDate), "d 'de' MMM", { locale: es })}`}
                                   >
                                     {diffSign} {Math.abs(diff).toFixed(0)}kg
                                   </span>
@@ -2037,7 +2037,7 @@ export default function WorkoutDetailPage() {
                           <span
                             className="text-[10px] px-1.5 py-0.5 rounded font-medium"
                             style={{ backgroundColor: 'var(--color-surface-2)', color: diffColor }}
-                            title={`Última vez: ${prevBest.weight}${unit} × ${prevBest.reps} — ${format(new Date(prev.workoutDate), "d 'de' MMM", { locale: es })}`}
+                            title={`Última vez: ${prevBest.weight} ${unit} × ${prevBest.reps} — ${format(new Date(prev.workoutDate), "d 'de' MMM", { locale: es })}`}
                           >
                             {diffSign} {Math.abs(diff).toFixed(0)}kg
                           </span>
