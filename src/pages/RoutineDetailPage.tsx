@@ -286,7 +286,7 @@ export default function RoutineDetailPage() {
                     <p className="text-sm font-medium truncate">{re.exercise_name}</p>
                     <p className="text-xs" style={{ color: 'var(--color-text-2)' }}>
                       {re.target_sets} × {re.target_reps_override != null ? `${re.target_reps_override}*` : re.target_reps}
-                      {re.target_weight ? ` @ ${re.target_weight}${unit}` : ''}
+                      {re.target_weight ? ` @ ${re.target_weight} ${unit}` : ''}
                       {re.target_rpe ? ` · RPE ${re.target_rpe}` : ''}
                       {(re.rest_seconds && re.rest_seconds !== 90) ? ` · ↔ ${re.rest_seconds}s` : ''}
                     </p>
@@ -442,7 +442,7 @@ export default function RoutineDetailPage() {
                           if (warmup.length > 0) {
                             toastStore.info(
                               'Warmup sets generadas',
-                              warmup.map(w => `${w.weight}${unit} × ${w.reps}`).join('\n')
+                              warmup.map(w => `${w.weight} ${unit} × ${w.reps}`).join('\n')
                             );
                           } else {
                             toastStore.warning('Peso demasiado bajo para generar warmup sets (mínimo 20kg).');
@@ -697,7 +697,7 @@ export default function RoutineDetailPage() {
                     {!skipped && (
                       <p className="text-xs" style={{ color: 'var(--color-text-2)' }}>
                         {re.target_sets} × {re.target_reps_override != null ? `${re.target_reps_override}*` : re.target_reps}
-                        {re.target_weight ? ` @ ${re.target_weight}${unit}` : ''}
+                        {re.target_weight ? ` @ ${re.target_weight} ${unit}` : ''}
                         {re.target_rpe ? ` · RPE ${re.target_rpe}` : ''}
                         {(re.rest_seconds && re.rest_seconds !== 90) ? ` · ↔ ${re.rest_seconds}s` : ''}
                       </p>

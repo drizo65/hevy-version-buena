@@ -306,7 +306,7 @@ export default function ExerciseDetailPage() {
     if (currentExerciseLastSets.length === 0) return;
     const lines = currentExerciseLastSets
       .slice(0, 10)
-      .map((s, i) => `Set ${i + 1}: ${s.weight}${unit} × ${s.reps} reps`)
+      .map((s, i) => `Set ${i + 1}: ${s.weight} ${unit} × ${s.reps} reps`)
       .join('\n');
     navigator.clipboard.writeText(lines).then(() => {
       setCopiedFeedback(true);
@@ -442,7 +442,7 @@ export default function ExerciseDetailPage() {
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold"
             style={{ backgroundColor: 'var(--color-primary)', color: '#000' }}
-            title={suggestedWeight ? `Añadir con ${suggestedWeight.weight}kg` : currentExerciseLastSets.length > 0 ? `Añadir con ${currentExerciseLastSets[0].weight}${unit} × ${currentExerciseLastSets[0].reps} reps` : 'Añadir al workout'}
+            title={suggestedWeight ? `Añadir con ${suggestedWeight.weight} ${unit}` : currentExerciseLastSets.length > 0 ? `Añadir con ${currentExerciseLastSets[0].weight} ${unit} × ${currentExerciseLastSets[0].reps} reps` : 'Añadir al workout'}
           >
             <Plus size={14} />
             Añadir
