@@ -418,7 +418,7 @@ export default function CompareWorkoutsPage() {
                             <div key={s.id || i} className="flex items-center gap-1.5 text-[10px]">
                               <span className="w-4 text-right font-medium opacity-60">{i + 1}.</span>
                               <span className="font-semibold" style={{ color: wtWin === 'A' ? 'var(--color-primary)' : 'var(--color-text)' }}>
-                                {s.weight}kg × {s.reps}
+                                {s.weight} kg × {s.reps}
                               </span>
                               {s.rpe != null && <span className="opacity-60">@{s.rpe}</span>}
                               {s.set_type !== 'normal' && (
@@ -436,7 +436,7 @@ export default function CompareWorkoutsPage() {
                             <div key={s.id || i} className="flex items-center gap-1.5 text-[10px]">
                               <span className="w-4 text-right font-medium opacity-60">{i + 1}.</span>
                               <span className="font-semibold" style={{ color: wtWin === 'B' ? '#f59e0b' : 'var(--color-text)' }}>
-                                {s.weight}kg × {s.reps}
+                                {s.weight} kg × {s.reps}
                               </span>
                               {s.rpe != null && <span className="opacity-60">@{s.rpe}</span>}
                               {s.set_type !== 'normal' && (

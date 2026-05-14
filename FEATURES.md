@@ -1343,5 +1343,10 @@ All other weight displays in the app use `formatWeight(w, unit)` which returns `
 - Copy-to-clipboard Set N lines: `50kg` → `50 kg`
 - "Añadir" button title: hardcoded `kg` → use `${unit}`, weight+unit: `50kg` → `50 kg`
 
+**WorkoutsPage fixes:**
+- `summaryModal` bestSet: `100kg × 8` → `100 kg × 8`
+- `bestSetLabel` template literal: `${weight}${unit}` → `${weight} ${unit}`
+- `topSet` mini-chip: `100kg×8` → `100 kg × 8`
+
 **Build:** `tsc -b` + `vite build` pass with 0 errors
 

@@ -502,7 +502,7 @@ export default function ExerciseDetailPage() {
             }}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-opacity"
             style={{ backgroundColor: 'rgba(250,204,21,0.15)', border: '1px solid rgba(250,204,21,0.3)' }}
-            title={`${bestSet.weight}kg × ${bestSet.reps} reps — Pulsa para usar esta serie`}
+            title={`${bestSet.weight} kg × ${bestSet.reps} reps — Pulsa para usar esta serie`}
           >
             <Trophy size={13} className="text-amber-400 flex-shrink-0" />
             <div className="flex flex-col items-start">
