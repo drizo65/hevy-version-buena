@@ -1324,3 +1324,24 @@ The `style` prop had 2 IIFEs and the `children` had a 3rd IIFE — all computing
 
 **Build:** `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors; tests: 26/26 pass
 
+
+### F339 — Cross-page: normalize weight+unit display spacing ✅ (2026-05-14)
+**Issue found during systematic review — inconsistent `weight + unit` spacing across pages.**
+
+All other weight displays in the app use `formatWeight(w, unit)` which returns `"50 kg"` or `"110 lb"` (space between number and unit). Several inline displays were missing the space or hardcoding `kg` instead of using the unit variable.
+
+**WorkoutDetailPage fixes:**
+- `lastWeights` chip: `50kg ×8` → `50 kg × 8` (added missing spaces)
+- Set dot title: `50kg × 8` → `50 kg × 8` (matched display text)
+- `prevBest` volume-diff titles (2×): `${prevBest.weight}${unit}` → `${prevBest.weight} ${unit}`
+
+**RoutineDetailPage fixes:**
+- `target_weight` display (2×): ` @ 40kg` → ` @ 40 kg`
+- Warmup toast: `${w.weight}${unit}` → `${w.weight} ${unit}`
+
+**ExerciseDetailPage fixes:**
+- Copy-to-clipboard Set N lines: `50kg` → `50 kg`
+- "Añadir" button title: hardcoded `kg` → use `${unit}`, weight+unit: `50kg` → `50 kg`
+
+**Build:** `tsc -b` + `vite build` pass with 0 errors
+
