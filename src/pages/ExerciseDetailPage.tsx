@@ -292,8 +292,8 @@ export default function ExerciseDetailPage() {
   const lastSessionPreview = useMemo(() => {
     if (currentExerciseLastSets.length === 0) return null;
     const topSet = currentExerciseLastSets.reduce((best, s) => {
-      const e1rm = s.weight * (1 + s.reps / 30);
-      const bestE1rm = best.weight * (1 + best.reps / 30);
+      const e1rm = calculate1RM(s.weight, s.reps);
+      const bestE1rm = calculate1RM(best.weight, best.reps);
       return e1rm > bestE1rm ? s : best;
     });
     const totalVolume = currentExerciseLastSets.reduce((sum, s) => sum + s.weight * s.reps, 0);

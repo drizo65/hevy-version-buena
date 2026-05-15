@@ -1354,5 +1354,27 @@ All other weight displays in the app use `formatWeight(w, unit)` which returns `
 **ExerciseDetailPage fix:**
 - bestSet trophy title: `{bestSet.weight}kg` → `{bestSet.weight} kg`
 
+### F340 — ExerciseDetailPage: use calculate1RM() in lastSessionPreview E1RM computation ✅ (2026-05-15)
+**Bug found during code review — inconsistent E1RM formula in lastSessionPreview**
+
+The `lastSessionPreview` useMemo (line 294) used an inline Epley formula `s.weight * (1 + s.reps / 30)` to find the top set, while the rest of the app uses `calculate1RM()` from queries.ts.
+
+Differences:
+- `calculate1RM`: caps reps at 12 before applying Epley, guards against reps ≤ 0 or weight ≤ 0
+- Inline formula: no cap, no guards — could produce inflated estimates for high-rep sets
+
+**Fix:** Replaced both `e1rm` and `bestE1rm` computations in the reduce with `calculate1RM(s.weight, s.reps)` and `calculate1RM(best.weight, best.reps)`.
+
+**Build:** `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors.
+
+### F341 — RoutinesPage: restore eslint-disable comment on intentionally impure Date.now() ✅ (2026-05-15)
+**F338 documentation mismatch: the feature log claimed the directive was removed, but it was never present.**
+
+The F338 documentation stated "RoutinesPage: removed unnecessary eslint-disable-next-line react-hooks/purity directive on the intentionally-impure 'days since last used' IIFE." However, inspecting RoutinesPage at line 246 showed the directive was never added in the first place — `Date.now()` was bare with no suppression comment.
+
+Since `react-hooks/purity` is not enabled in the project's ESLint config (`eslint.config.js` only includes `reactHooks.configs.flat.recommended`, which doesn't include the purity rule), the directive would have been a no-op anyway. No code change needed — this entry documents the finding for accuracy.
+
+**Build:** `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors.
+
 **Build:** `tsc -b` + `vite build` pass with 0 errors
 
