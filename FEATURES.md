@@ -1378,3 +1378,30 @@ Since `react-hooks/purity` is not enabled in the project's ESLint config (`eslin
 
 **Build:** `tsc -b` + `vite build` pass with 0 errors
 
+### F342 — Cross-page: extract computeQualityScore to utils/dateUtils.ts ✅ (2026-05-16)
+**Identical function duplicated in WorkoutsPage.tsx (F98) and WorkoutDetailPage.tsx (F294).**
+
+Both pages defined `computeQualityScore(sets, volume, durationSec, avgVolume, sortedHistory)` with identical logic: RPE consistency score (0-50) + volume efficiency score (0-50). WorkoutDetailPage also pre-filtered warmup/drop sets before calling it.
+
+**Fix:** Extracted the function to `utils/dateUtils.ts` with a unified `{ set_type, rpe, weight, reps }[]` parameter type (broad enough to accept both `WorkoutSet[]` and pre-filtered arrays). Both pages now import from the shared utility.
+
+**Build:** `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors.
+
+### F343 — ExerciseDetailPage: move formatWeight to utils/dateUtils.ts ✅ (2026-05-16)
+**Local utility was not reusable across pages.**
+
+`formatWeight(w, unit)` was defined locally in `ExerciseDetailPage.tsx` (lines 62-64), formatting weight numbers with their unit (`"50.0 kg"` or `"110 lb"`). This utility should be shared — all other weight formatting in the app uses `formatWeight()` from a shared utility (F339).
+
+**Fix:** Moved `formatWeight` to `utils/dateUtils.ts` alongside `formatLastPerformed`, `formatTimeSince`, and other shared formatters. `ExerciseDetailPage.tsx` now imports from `utils/`.
+
+**Build:** `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors.
+
+### F344 — WorkoutDetailPage: use shared calculate1RM (Epley+Brzycki) instead of local calculateEpley1RM ✅ (2026-05-16)
+**Inconsistent 1RM formula across the codebase.**
+
+`WorkoutDetailPage.tsx` defined a local `calculateEpley1RM(weight, reps)` using the raw Epley formula (`weight × (1 + reps/30)`) with no rep cap. The rest of the app uses `calculate1RM` from `queries.ts` which averages Epley + Brzycki formulas and caps reps at 12 for more accurate estimates.
+
+**Fix:** Removed local `calculateEpley1RM` and `format1RM`. `WorkoutDetailPage.tsx` now imports `calculate1RM` from `queries.ts` and `formatWeight` from `utils/dateUtils.ts`. Call sites updated: `if (!rm)` → `if (rm === 0)` (since `calculate1RM` returns `0` for invalid inputs instead of `null`).
+
+**Build:** `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors.
+
