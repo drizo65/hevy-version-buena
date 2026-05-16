@@ -11,7 +11,7 @@ import { useSettingsStore } from '../store/settingsStore';
 import { useWorkoutStore } from '../store/workoutStore';
 import { toastStore } from '../components/ui/toastStore';
 import { format } from 'date-fns';
-import { formatTimeSince, getTimeSinceColor } from '../utils/dateUtils';
+import { formatTimeSince, getTimeSinceColor, formatWeight } from '../utils/dateUtils';
 import { es } from 'date-fns/locale';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine, CartesianGrid } from 'recharts';
 import type { Exercise, WorkoutSet, PersonalRecord, Routine, RoutineExercise } from '../types';
@@ -58,12 +58,6 @@ const EQUIPMENT_LABELS: Record<string, string> = {
   bands: 'Bandas',
   other: 'Otro',
 };
-
-function formatWeight(w: number, unit: string): string {
-  if (unit === 'lb') return `${Math.round(w)} lb`;
-  return `${w.toFixed(1)} kg`;
-}
-
 
 export default function ExerciseDetailPage() {
   const { id } = useParams<{ id: string }>();

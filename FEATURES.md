@@ -1387,12 +1387,12 @@ Both pages defined `computeQualityScore(sets, volume, durationSec, avgVolume, so
 
 **Build:** `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors.
 
-### F343 — ExerciseDetailPage: move formatWeight to utils/dateUtils.ts ✅ (2026-05-16)
+### F343 — ExerciseDetailPage: use shared formatWeight from utils/dateUtils.ts ✅ (2026-05-16)
 **Local utility was not reusable across pages.**
 
 `formatWeight(w, unit)` was defined locally in `ExerciseDetailPage.tsx` (lines 62-64), formatting weight numbers with their unit (`"50.0 kg"` or `"110 lb"`). This utility should be shared — all other weight formatting in the app uses `formatWeight()` from a shared utility (F339).
 
-**Fix:** Moved `formatWeight` to `utils/dateUtils.ts` alongside `formatLastPerformed`, `formatTimeSince`, and other shared formatters. `ExerciseDetailPage.tsx` now imports from `utils/`.
+**Fix:** `formatWeight` was already in `utils/dateUtils.ts` (added in this session). Removed the local duplicate from `ExerciseDetailPage.tsx` and updated the import to use the shared utility. `ExerciseDetailPage.tsx` now imports `formatWeight` from `../utils/dateUtils`.
 
 **Build:** `tsc -b` + `vite build` pass with 0 errors; lint: 0 errors.
 
