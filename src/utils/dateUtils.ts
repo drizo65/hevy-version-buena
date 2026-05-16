@@ -82,3 +82,61 @@ export const TIME_OF_DAY_COLORS: Record<TimeOfDay, string> = {
   afternoon: '#3b82f6', // blue
   evening: '#8b5cf6',   // purple
 };
+
+
+// =============================================================================
+// Shared weight utility — F343
+// =============================================================================
+
+/**
+ * Format a weight number with its unit (kg/lb), consistent with formatWeight
+ * used across all pages. F339 eliminated inline weight+unit strings.
+ * kg: 1 decimal place (e.g. "50.0 kg"), lb: integer (e.g. "110 lb")
+ */
+export function formatWeight(w: number, unit: string): string {
+  if (unit === 'lb') return `${Math.round(w)} lb`;
+  return `${w.toFixed(1)} kg`;
+}
+
+// =============================================================================
+// Workout quality score — F342
+// RPE consistency (0-50) + volume efficiency (0-50)
+// Extracted from WorkoutsPage.tsx (F98) and WorkoutDetailPage.tsx (F294).
+// Both implementations were identical; this is the single shared source.
+// =============================================================================
+
+export function computeQualityScore(
+  sets: { rpe: number | null; set_type: string; weight: number; reps: number }[],
+  volume: number,
+  durationSec: number,
+  avgVolume: number,
+  sortedHistory: { duration_seconds: number | null }[]
+): number {
+  if (sets.length === 0) return 0;
+  // Filter working sets (exclude warmup and drop sets) — same logic in both pages
+  const workingSets = sets.filter((s) => s.set_type !== 'warmup' && s.set_type !== 'drop');
+  // RPE consistency score (0-50 points): lower variance = higher score
+  const rpeSets = workingSets.filter((s: { rpe: number | null }) => s.rpe != null && s.rpe > 0);
+  let rpeScore = 25; // neutral baseline if no RPE data
+  if (rpeSets.length >= 3) {
+    const rpes = rpeSets.map((s) => s.rpe as number);
+    const mean = rpes.reduce((a: number, b: number) => a + b, 0) / rpes.length;
+    const variance = rpes.reduce((a: number, r: number) => a + (r - mean) ** 2, 0) / rpes.length;
+    // variance of 0 = perfect consistency = 50pts; variance of 4 (max) = 0pts
+    rpeScore = Math.max(0, 50 - (variance * 12.5));
+  } else if (rpeSets.length > 0) {
+    rpeScore = 30; // partial credit for having some RPE data
+  }
+  // Volume efficiency score (0-50 points): kg per minute vs user average
+  const volPerMin = durationSec > 0 ? (volume / durationSec) * 60 : 0;
+  // Compare to overall avgVolume / avgDuration
+  const avgDur = sortedHistory.reduce((sum: number, h: { duration_seconds: number | null }) => sum + (h.duration_seconds || 0), 0) / Math.max(sortedHistory.length, 1);
+  const avgVolPerMin = avgDur > 0 ? (avgVolume / avgDur) * 60 : 0;
+  let effScore = 25; // neutral
+  if (avgVolPerMin > 0 && volPerMin > 0) {
+    const effRatio = volPerMin / avgVolPerMin;
+    // ratio of 1.0 = 50pts, ratio of 0.5 or 2.0 = ~25pts, extreme = lower
+    effScore = Math.min(50, Math.round(50 * Math.min(effRatio, 2 / effRatio)));
+  }
+  return Math.round(rpeScore + effScore);
+}

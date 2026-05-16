@@ -3,12 +3,13 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Edit2, Check, X, MessageSquare, Trash2, Timer, GitCompare, RotateCcw, Layers, Copy, Share2, Target, Plus, Search, GripVertical, AlertTriangle, Save, FileText, Trophy, Star, Link, Weight, Flame, Tag } from 'lucide-react';
 import { getDb, generateId } from '../database/init';
-import { getWorkoutById, getWorkoutSets, getExercisesByIdsAll, getWorkoutExerciseOrder, getRestTimeStats, getWorkouts, getWorkoutCount, getPreviousExerciseSets, getRoutineExerciseTargetRPEMap, searchExercises, getLastExerciseSets, getAverageWorkoutDuration, getAverageWorkoutVolume, getPersonalRecordsByIdsAll, getWarmupSets, getLastWeightPerExerciseAll, getRestTimeAnalytics, getWeeklyVolumeComparison } from '../database/queries';
+import { getWorkoutById, getWorkoutSets, getExercisesByIdsAll, getWorkoutExerciseOrder, getRestTimeStats, getWorkouts, getWorkoutCount, getPreviousExerciseSets, getRoutineExerciseTargetRPEMap, searchExercises, getLastExerciseSets, getAverageWorkoutDuration, getAverageWorkoutVolume, getPersonalRecordsByIdsAll, getWarmupSets, getLastWeightPerExerciseAll, getRestTimeAnalytics, getWeeklyVolumeComparison, calculate1RM } from '../database/queries';
 import { updateWorkoutNotes, updateWorkoutSetNotes, updateWorkoutSetRPE, updateWorkoutName, updateWorkoutDate, reorderWorkoutExercises, removeExerciseFromWorkoutDb, saveRoutine, saveRoutineExercise, saveWorkout, updateWorkoutTags } from '../database/mutations';
 import { useWorkoutStore } from '../store/workoutStore';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useSettingsStore } from '../store/settingsStore';
+import { computeQualityScore, formatWeight } from '../utils/dateUtils';
 import type { Workout, WorkoutSet, SetType, Exercise, Equipment, PersonalRecord } from '../types';
 import WorkoutShareCard from '../components/WorkoutShareCard';
 import WorkoutShare from '../components/WorkoutShare';
@@ -37,33 +38,7 @@ function rpeColor(rpe: number): string {
   return '#ef4444';
 }
 
-// F294 — Workout quality score: RPE consistency (0-50) + volume efficiency (0-50)
-function computeQualityScore(sets: WorkoutSet[], volume: number, durationSec: number, avgVolume: number, sortedHistory: Workout[]): number {
-  if (sets.length === 0) return 0;
-  // Filter working sets (exclude warmup and drop sets)
-  const workingSets = sets.filter((s: WorkoutSet) => s.set_type !== 'warmup' && s.set_type !== 'drop');
-  // RPE consistency score (0-50 points): lower variance = higher score
-  const rpeSets = workingSets.filter((s: WorkoutSet) => s.rpe != null && s.rpe > 0);
-  let rpeScore = 25;
-  if (rpeSets.length >= 3) {
-    const rpes = rpeSets.map((s: WorkoutSet) => s.rpe as number);
-    const mean = rpes.reduce((a: number, b: number) => a + b, 0) / rpes.length;
-    const variance = rpes.reduce((a: number, r: number) => a + (r - mean) ** 2, 0) / rpes.length;
-    rpeScore = Math.max(0, 50 - (variance * 12.5));
-  } else if (rpeSets.length > 0) {
-    rpeScore = 30;
-  }
-  // Volume efficiency score (0-50 points)
-  const volPerMin = durationSec > 0 ? (volume / durationSec) * 60 : 0;
-  const avgDur = sortedHistory.reduce((sum: number, h: Workout) => sum + (h.duration_seconds || 0), 0) / Math.max(sortedHistory.length, 1);
-  const avgVolPerMin = avgDur > 0 ? (avgVolume / avgDur) * 60 : 0;
-  let effScore = 25;
-  if (avgVolPerMin > 0 && volPerMin > 0) {
-    const effRatio = volPerMin / avgVolPerMin;
-    effScore = Math.min(50, Math.round(50 * Math.min(effRatio, 2 / effRatio)));
-  }
-  return Math.round(rpeScore + effScore);
-}
+// F342 — computeQualityScore imported from utils/dateUtils.ts
 
 // Time Under Tension helper — F42
 const TUT_TEMPO_SECS = 3; // ~3s per rep (eccentric + concentric)
@@ -75,15 +50,7 @@ function formatTUT(seconds: number): string {
   return `${seconds}s`;
 }
 
-// F46 — Estimated 1RM using Epley formula: weight × (1 + reps/30)
-// Only meaningful for completed sets with weight > 0 and reps > 0
-function calculateEpley1RM(weight: number, reps: number): number | null {
-  if (weight <= 0 || reps <= 0) return null;
-  return weight * (1 + reps / 30);
-}
-function format1RM(rm: number, unit: string): string {
-  return `${Math.round(rm)} ${unit}`;
-}
+// F344 — calculateEpley1RM/format1RM removed: using calculate1RM from queries.ts (Epley+Brzycki avg) and formatWeight from utils/
 
 // F316 — Color for rest time badge vs global average
 function getRestTimeColor(avg: number, globalAvg: number): { bg: string; color: string } {
@@ -1842,14 +1809,14 @@ export default function WorkoutDetailPage() {
                               })()}
                               {/* F46 — Estimated 1RM badge (Epley formula) */}
                               {(() => {
-                                const rm = calculateEpley1RM(set.weight, set.reps);
-                                if (!rm) return null;
+                                const rm = calculate1RM(set.weight, set.reps);
+                                if (rm === 0) return null;
                                 return (
                                   <span className="text-[10px] px-1 rounded flex-shrink-0 font-medium" style={{
                                     backgroundColor: 'rgba(59,130,246,0.15)',
                                     color: '#3b82f6',
                                   }}
-                                    title={`1RM estimado (Epley): ${format1RM(rm, unit)}`}
+                                    title={`1RM estimado (Epley): ${formatWeight(rm, unit)}`}
                                   >
                                     1RM {Math.round(rm)}
                                   </span>
@@ -2162,14 +2129,14 @@ export default function WorkoutDetailPage() {
                       )}
                       {/* F46 — Estimated 1RM badge for completed sets */}
                       {(() => {
-                        const rm = calculateEpley1RM(set.weight, set.reps);
-                        if (!rm) return null;
+                        const rm = calculate1RM(set.weight, set.reps);
+                        if (rm === 0) return null;
                         return (
                           <span className="text-[10px] px-1 rounded flex-shrink-0 font-medium" style={{
                             backgroundColor: 'rgba(59,130,246,0.15)',
                             color: '#3b82f6',
                           }}
-                            title={`1RM estimado (Epley): ${format1RM(rm, unit)}`}
+                            title={`1RM estimado (Epley): ${formatWeight(rm, unit)}`}
                           >
                             1RM {Math.round(rm)}
                           </span>

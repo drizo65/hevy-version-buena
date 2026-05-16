@@ -12,7 +12,7 @@ import { getWorkouts, getRoutineById, getRoutineExercises, getLastExerciseSets, 
 import { saveWorkout, saveRoutine, saveRoutineExercise, checkAndSavePersonalRecords, updateWorkoutTags, updateWorkoutNotes, updateWorkoutRating, updateWorkoutName } from '../database/mutations';
 import { toastStore } from '../components/ui/toastStore';
 import { format, differenceInSeconds } from 'date-fns';
-import { getTimeOfDay, TIME_OF_DAY_LABELS, TIME_OF_DAY_COLORS, type TimeOfDay } from '../utils/dateUtils';
+import { getTimeOfDay, TIME_OF_DAY_LABELS, TIME_OF_DAY_COLORS, computeQualityScore, type TimeOfDay } from '../utils/dateUtils';
 import { es } from 'date-fns/locale';
 import type { Workout, Routine, RoutineExercise, ActiveSet, WorkoutSet, ActiveWorkoutExercise, Exercise, Equipment, SetType } from '../types';
 
@@ -34,35 +34,7 @@ const SET_TYPE_COLORS: Record<SetType, string> = {
   superset: '#10b981',
 };
 
-// F98 — Workout quality score: hoisted to module level to avoid recreation on every render
-function computeQualityScore(sets: WorkoutSet[], volume: number, durationSec: number, avgVolume: number, sortedHistory: Workout[]): number {
-  if (sets.length === 0) return 0;
-  // RPE consistency score (0-50 points): lower variance = higher score
-  const rpeSets = sets.filter((s: WorkoutSet) => s.rpe != null && s.rpe > 0);
-  let rpeScore = 25; // neutral baseline if no RPE data
-  if (rpeSets.length >= 3) {
-    const rpes = rpeSets.map((s: WorkoutSet) => s.rpe as number);
-    const mean = rpes.reduce((a: number, b: number) => a + b, 0) / rpes.length;
-    const variance = rpes.reduce((a: number, r: number) => a + (r - mean) ** 2, 0) / rpes.length;
-    // variance of 0 = perfect consistency = 50pts; variance of 4 (max) = 0pts
-    rpeScore = Math.max(0, 50 - (variance * 12.5));
-  } else if (rpeSets.length > 0) {
-    rpeScore = 30; // partial credit for having some RPE data
-  }
-  // Volume efficiency score (0-50 points): kg per minute vs user average
-  const volPerMin = durationSec > 0 ? (volume / durationSec) * 60 : 0;
-  // Compare to overall avgVolume / avgDuration
-  const avgDur = sortedHistory.reduce((sum: number, h: Workout) => sum + (h.duration_seconds || 0), 0) / Math.max(sortedHistory.length, 1);
-  const avgVolPerMin = avgDur > 0 ? (avgVolume / avgDur) * 60 : 0;
-  let effScore = 25; // neutral
-  if (avgVolPerMin > 0 && volPerMin > 0) {
-    const effRatio = volPerMin / avgVolPerMin;
-    // ratio of 1.0 = 50pts, ratio of 0.5 or 2.0 = ~25pts, extreme = lower
-    effScore = Math.min(50, Math.round(50 * Math.min(effRatio, 2 / effRatio)));
-  }
-  return Math.round(rpeScore + effScore);
-}
-
+// F342 — computeQualityScore moved to utils/dateUtils.ts (shared with WorkoutDetailPage)
 const WORKOUT_TAGS = ['piernas', 'upper body', 'full body', 'cardio', 'stretch'];
 
 // F255 — Workout feel emoji tags in the finish modal
